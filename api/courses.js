@@ -4,6 +4,7 @@ const { validateAgainstSchema } = require('../lib/validation');
 
 const {
     CourseSchema,
+    insertNewCourse
 } = require('../models/courses');
 
  /*
@@ -17,7 +18,23 @@ router.get('/', async(req, res, next) => {
  * Route to create new course.
  */
 router.post('/', async(req, res, next) => {
-
+  if (validateAgainstSchema(req.body, CourseSchema)) {
+    try {
+      const id = await insertNewCourse(req.body);
+      res.status(201).send({
+        id: id
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send({
+        error: "Error inserting course into DB.  Please try again later."
+      });
+    }
+  } else {
+    res.status(400).send({
+      error: "Request body is not a valid course object."
+    });
+}
 });
 
 /*
