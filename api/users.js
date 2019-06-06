@@ -50,6 +50,7 @@ router.post('/login', async (req, res, next) => {
         const user = await getUserByEmail(req.body.email);
         const token = generateAuthToken(user._id);
         res.status(200).send({
+          id: user._id,
           token: token
         });
       } else {
@@ -79,7 +80,12 @@ router.get('/:id', requireAuthentication, async (req, res, next) => {
     try {
       const user = await getUserById(req.params.id);
       if(user) {
-        res.status(200).send(user);
+        res.status(200).send({
+          id: user._id,
+          email: user.email,
+          role: user.role,
+          courses: [] // Needs to be changed later
+        });
       } else {
         next();
       }
