@@ -15,6 +15,8 @@ services:
       MONGO_PASSWORD: ${MONGO_PASSWORD}
       MONGO_HOST: ${MONGO_HOST}
       MONGO_PORT: 27017
+      WAIT_HOSTS: mongodb:27017
+      WAIT_AFTER_HOSTS: 5
 
   mongodb:
     image: mongo:latest

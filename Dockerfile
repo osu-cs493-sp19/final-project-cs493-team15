@@ -4,4 +4,6 @@ COPY . .
 RUN npm install
 ENV PORT=8000
 EXPOSE ${PORT}
-CMD [ "npm", "start" ]
+ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.5.0/wait /wait
+RUN chmod +x /wait
+CMD /wait && npm start
