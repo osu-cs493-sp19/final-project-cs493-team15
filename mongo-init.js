@@ -23,3 +23,12 @@ db.users.insertMany([
     "role": "instructor"
   }
 ])
+
+db.courses.insertMany([
+  {
+    "subject": "CS",
+    "number": "493",
+    "title": "Cloud Application Development",
+    "term": "sp19",
+  }
+])
