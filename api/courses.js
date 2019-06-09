@@ -10,7 +10,8 @@ const {
     updateCourseById,
     getCourseById,
     getCourseEnrollment,
-    getCourseAssignments
+    getCourseAssignments,
+    updateEnrollment
 } = require('../models/courses');
 
  /*
@@ -159,8 +160,16 @@ router.get('/:id/students', async(req, res) => {
 /*
  * Route to update enrollment for specific course.
  */
-router.post('/:id/students', async(req, res, next) => {
-
+router.post('/:id/students', async(req, res) => {
+  try {
+    await updateEnrollment(req.params.id, req.body);
+    res.status(200).send();
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({
+      error: "Error inserting course into DB.  Please try again later."
+    });
+  }
 });
 
 

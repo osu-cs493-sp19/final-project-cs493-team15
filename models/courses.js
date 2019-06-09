@@ -147,3 +147,26 @@ async function getCourseAssignments(id) {
   }
 }
 exports.getCourseAssignments = getCourseAssignments;
+
+async function updateEnrollment(id, body) {
+  const db = getDBReference();
+  const collection = db.collection('courseEnrollment');
+  if (!ObjectId.isValid(id)) {
+    return null;
+  } else {
+    if (body.add){
+      body.add.forEach(async function(element) {
+        console.log("add", element);
+        await collection.update( { _id: ObjectId(id) }, { $push : { 'enrolled': ObjectId(element) } } );
+      });
+    } 
+    if (body.remove){
+      body.remove.forEach(async function(element) {
+        console.log("remove", element);
+        await collection.update( { _id: ObjectId(id) }, { $pull : { 'enrolled': ObjectId(element) } } );
+      });
+    }
+  }
+  return collection;
+}
+exports.updateEnrollment = updateEnrollment;
