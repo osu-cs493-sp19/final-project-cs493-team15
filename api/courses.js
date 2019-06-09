@@ -8,13 +8,15 @@ const {
     getCoursesPage,
     deleteCourseById,
     updateCourseById,
-    getCourseById
+    getCourseById,
+    getCourseEnrollment,
+    getCourseAssignments
 } = require('../models/courses');
 
  /*
  * Route to get all courses.
  */
-router.get('/', async(req, res, next) => {
+router.get('/', async(req, res) => {
   try {
     var subject = req.query.subject || undefined;
     var number = req.query.number || undefined;
@@ -46,7 +48,7 @@ router.get('/', async(req, res, next) => {
  /*
  * Route to create new course.
  */
-router.post('/', async(req, res, next) => {
+router.post('/', async(req, res) => {
   if (validateAgainstSchema(req.body, CourseSchema)) {
     try {
       const id = await insertNewCourse(req.body);
@@ -113,7 +115,7 @@ router.patch('/:id', async(req, res) => {
 /*
  * Route to delete specific course.
  */
-router.delete('/:id', async(req, res, next) => {
+router.delete('/:id', async(req, res) => {
   try {
     const course = await deleteCourseById(req.params.id);
     if (course) {
@@ -135,8 +137,22 @@ router.delete('/:id', async(req, res, next) => {
 /*
  * Route to get list of students in specific course.
  */
-router.get('/:id/students', async(req, res, next) => {
-
+router.get('/:id/students', async(req, res) => {
+  try {
+    const course = await getCourseEnrollment(req.params.id);
+    if (course) {
+      res.status(200).send({enrolled: course.enrolled});
+    } else {
+      res.status(404).send({
+        error: "Specified Course id not found."
+      });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({
+      error: "Unable to fetch course list.  Please try again later."
+    });
+  }
 });
 
 
@@ -159,8 +175,22 @@ router.get('/:id/roster', async(req, res, next) => {
 /*
  * Route to get list of assignments for specific course.
  */
-router.get('/:id/assignments', async(req, res, next) => {
-
+router.get('/:id/assignments', async(req, res) => {
+  try {
+    const course = await getCourseAssignments(req.params.id);
+    if (course) {
+      res.status(200).send({assignments: course.assignments});
+    } else {
+      res.status(404).send({
+        error: "Specified Course id not found."
+      });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({
+      error: "Unable to fetch course list.  Please try again later."
+    });
+  }
 });
 
 module.exports = router;

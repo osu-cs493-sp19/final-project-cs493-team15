@@ -102,12 +102,48 @@ exports.deleteCourseById = deleteCourseById;
  */
 async function updateCourseById(id, body) {
   const db = getDBReference();
+  const courseValues = {
+    "subject": body.subject,
+    "number": body.number,
+    "title": body.title,
+    "term": body.term,
+    "instructorId": body.instructorId
+  };
   const collection = db.collection('courses');
   if (!ObjectId.isValid(id)) {
     return null;
   } else {
-    result = await collection.update({ _id: ObjectId(id)}, {$set: body});
+    result = await collection.update({ _id: ObjectId(id)}, courseValues);
     return result;
   }
 }
 exports.updateCourseById = updateCourseById;
+
+
+async function getCourseEnrollment(id) {
+  const db = getDBReference();
+  const collection = db.collection('courseEnrollment');
+  if (!ObjectId.isValid(id)) {
+    return null;
+  } else {
+    const results = await collection
+      .find({ _id: ObjectId(id) })
+      .toArray();
+    return results[0];
+  }
+}
+exports.getCourseEnrollment = getCourseEnrollment;
+
+async function getCourseAssignments(id) {
+  const db = getDBReference();
+  const collection = db.collection('courseAssignments');
+  if (!ObjectId.isValid(id)) {
+    return null;
+  } else {
+    const results = await collection
+      .find({ _id: ObjectId(id) })
+      .toArray();
+    return results[0];
+  }
+}
+exports.getCourseAssignments = getCourseAssignments;
