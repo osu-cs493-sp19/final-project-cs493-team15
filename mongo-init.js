@@ -11,6 +11,13 @@ db.createUser({
 
 db.users.insertMany([
   {
+    "_id" : ObjectId("5cca056dc56deb6a14e0a650"),
+    "name": "Admin",
+    "email": "admin@oregonstate.edu",
+    "password": "$2a$08$1mCuZV6y4hdBjqqR95JlqegIIzbUR2Xz/NCn8jb0cTyIf/8LwN0le",
+    "role": "admin"
+  },
+  {
     "_id" : ObjectId("5cca056dc56deb6a14e0a640"),
     "name": "Jimwel Aguinaldo",
     "email": "jimwel.aguinaldo@oregonstate.edu",

@@ -6,6 +6,8 @@ const { ObjectId } = require('mongodb');
 const { getDBReference } = require('../lib/mongo');
 const { extractValidFields } = require('../lib/validation');
 
+const { Parser } = require('json2csv');
+
 const CourseSchema = {
     description: { required: false },
     subject: { required: true },
@@ -170,3 +172,41 @@ async function updateEnrollment(id, body) {
   return collection;
 }
 exports.updateEnrollment = updateEnrollment;
+
+
+async function getEnrollmentCSV(id){
+  const db = getDBReference();
+  const collection = db.collection('users');
+
+  const courseEnrollment = await getCourseEnrollment(id);
+
+  var students = [];
+
+  for (const element of courseEnrollment.enrolled) {
+    var student = await collection.find( { _id: ObjectId(element) } ).toArray();
+    students.push(student[0]);
+  }
+  const fields = ['_id', 'name', 'email'];
+  const json2csvParser = new Parser({ fields });
+  const csv = json2csvParser.parse(students);
+
+  return csv;
+}
+exports.getEnrollmentCSV = getEnrollmentCSV;
+
+async function checkProperInstructor(id, instructorId){
+	const db = getDBReference();
+	const collection = db.collection('courses');
+	try{
+		var course = await collection.find({_id: ObjectId(id)}).toArray();
+    course = course[0];
+		if(course.instructorId == instructorId){
+			return true;
+		} else{
+      return false;
+    }
+	} catch(err){
+		return false;
+	}
+}
+exports.checkProperInstructor = checkProperInstructor;
