@@ -75,7 +75,6 @@ router.post('/login', async (req, res, next) => {
  * Route to fetch data about a specific user.
  */
 router.get('/:id', requireAuthentication, async (req, res, next) => {
-  const user = await getUserById(req.params.id);
   if(req.params.id === req.user) {
     try {
       const user = await getUserById(req.params.id);

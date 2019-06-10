@@ -23,3 +23,20 @@ db.users.insertMany([
     "role": "instructor"
   }
 ])
+
+db.assignments.insertMany([
+  {
+    "courseId": 1,
+    "title": "Assignment 1",
+    "points": 99,
+    "due": "2019-06-14T17:00:00-07:00"
+  },
+  {
+    "courseId": 1,
+    "title": "Assignment 2",
+    "points": 80,
+    "due": "2019-06-21T17:00:00-07:00"
+  }
+])
+
+db.createCollection("submissions");
