@@ -121,7 +121,10 @@ async function updateCourseById(id, body) {
 }
 exports.updateCourseById = updateCourseById;
 
-
+ /*
+ * Executes a DB query to get course enrollment based on the specified id.
+ * Takes in the id and queries the courseEnrollment collection.
+ */
 async function getCourseEnrollment(id) {
   const db = getDBReference();
   const collection = db.collection('courseEnrollment');
@@ -136,6 +139,11 @@ async function getCourseEnrollment(id) {
 }
 exports.getCourseEnrollment = getCourseEnrollment;
 
+
+ /*
+ * Executes a DB query to get course assignments based on the specified id.
+ * Takes in the id and queries the courseAssignments collection.
+ */
 async function getCourseAssignments(id) {
   const db = getDBReference();
   const collection = db.collection('courseAssignments');
@@ -150,6 +158,10 @@ async function getCourseAssignments(id) {
 }
 exports.getCourseAssignments = getCourseAssignments;
 
+ /*
+ * Executes a DB query to update course enrollment based on the specified id.
+ * Takes in the id and the request body to update the courseEnrollment collection.
+ */
 async function updateEnrollment(id, body) {
   const db = getDBReference();
   const collection = db.collection('courseEnrollment');
@@ -173,7 +185,10 @@ async function updateEnrollment(id, body) {
 }
 exports.updateEnrollment = updateEnrollment;
 
-
+ /*
+ * Executes a DB query to return a CSV of the students enrolled in the course.
+ * Takes in the id and queries the users collection.
+ */
 async function getEnrollmentCSV(id){
   const db = getDBReference();
   const collection = db.collection('users');
@@ -194,6 +209,9 @@ async function getEnrollmentCSV(id){
 }
 exports.getEnrollmentCSV = getEnrollmentCSV;
 
+ /*
+ * Executes a DB query to check if the specified id is the instructor for the class.
+ */
 async function checkProperInstructor(id, instructorId){
 	const db = getDBReference();
 	const collection = db.collection('courses');
