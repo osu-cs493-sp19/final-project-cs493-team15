@@ -158,7 +158,7 @@ router.delete('/:id', requireAuthentication, async(req, res) => {
 /*
  * Route to get list of students in specific course.
  */
-router.get('/:id/students', async(req, res) => {
+router.get('/:id/students', requireAuthentication, async(req, res) => {
   if (req.role == "admin" || (req.role == "instructor" && await checkProperInstructor(req.params.id, req.user))) {
     try {
       const course = await getCourseEnrollment(req.params.id);
@@ -186,7 +186,7 @@ router.get('/:id/students', async(req, res) => {
 /*
  * Route to update enrollment for specific course.
  */
-router.post('/:id/students', async(req, res) => {
+router.post('/:id/students', requireAuthentication, async(req, res) => {
   if (req.role == "admin" || (req.role == "instructor" && await checkProperInstructor(req.params.id, req.user))) {
     try {
       await updateEnrollment(req.params.id, req.body);
@@ -208,7 +208,7 @@ router.post('/:id/students', async(req, res) => {
 /*
  * Route to fetch CSV file containing list of students for specific course.
  */
-router.get('/:id/roster', async(req, res, next) => {
+router.get('/:id/roster', requireAuthentication, async(req, res, next) => {
   if (req.role == "admin" || (req.role == "instructor" && await checkProperInstructor(req.params.id, req.user))) {
     try {
       const course = await getEnrollmentCSV(req.params.id);

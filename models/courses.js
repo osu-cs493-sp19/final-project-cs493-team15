@@ -219,11 +219,16 @@ async function checkProperInstructor(id, instructorId){
 		var course = await collection.find({_id: ObjectId(id)}).toArray();
     course = course[0];
 		if(course.instructorId == instructorId){
+      console.log("here1");
 			return true;
 		} else{
+      console.log("here2");
+
       return false;
     }
 	} catch(err){
+    console.log("here3");
+
 		return false;
 	}
 }
