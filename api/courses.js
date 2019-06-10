@@ -11,7 +11,8 @@ const {
     getCourseById,
     getCourseEnrollment,
     getCourseAssignments,
-    updateEnrollment
+    updateEnrollment,
+    getEnrollmentCSV
 } = require('../models/courses');
 
  /*
@@ -177,7 +178,21 @@ router.post('/:id/students', async(req, res) => {
  * Route to fetch CSV file containing list of students for specific course.
  */
 router.get('/:id/roster', async(req, res, next) => {
-
+  try {
+    const course = await getEnrollmentCSV(req.params.id);
+    if (course) {
+      res.status(200).send(course);
+    } else {
+      res.status(404).send({
+        error: "Specified Course id not found."
+      });
+    } 
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({
+      error: "Unable to fetch Course.  Please try again later."
+    });
+  }
 });
 
 
