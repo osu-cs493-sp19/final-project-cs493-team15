@@ -1,4 +1,6 @@
 const router = require('express').Router();
+const { ObjectId } = require('mongodb');
+
 
 const { validateAgainstSchema } = require('../lib/validation');
 const {
@@ -34,10 +36,11 @@ const {
 /*
  * Route to add an assignment.
  */
-router.post('/', async (req, res, next) => {
+router.post('/', requireAuthentication, async (req, res, next) => {
     if (validateAgainstSchema(req.body, AssignmentSchema)) {
-        const course = getCourseById(req.body.courseId)
-        if(course.instructorId === req.user) {
+        const course = await getCourseById(req.body.courseId);
+        const temp = "\"" + req.user + "\""; 
+        if(JSON.stringify(course.instructorId) === temp) {
             try {
             const id = await insertNewAssignment(req.body);
             res.status(201).send({
