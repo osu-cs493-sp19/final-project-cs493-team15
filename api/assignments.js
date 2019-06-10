@@ -13,6 +13,10 @@ const {
     getAssignmentsPage
  } = require('../models/assignments');
 
+ const {
+    getCourseById
+ } = require('../models/courses')
+
  const { generateAuthToken, requireAuthentication } = require('../lib/auth');
 
 
@@ -32,17 +36,24 @@ const {
  */
 router.post('/', async (req, res, next) => {
     if (validateAgainstSchema(req.body, AssignmentSchema)) {
-        try {
+        const course = getCourseById(req.body.courseId)
+        if(course.instructorId === req.user) {
+            try {
             const id = await insertNewAssignment(req.body);
             res.status(201).send({
             id: id
             });
-        } catch (err) {
-            console.error(err);
-            res.status(500).send({
-            error: "Error inserting assignment into DB.  Please try again later."
+            } catch (err) {
+                console.error(err);
+                res.status(500).send({
+                error: "Error inserting assignment into DB.  Please try again later."
+                });
+            }
+        } else {
+            res.status(403).send({
+                error: "Unauthorized to access the specified resource"
             });
-        }
+        }  
     } else {
         res.status(400).send({
             error: "Request body is not a valid assignment object."
