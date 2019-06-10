@@ -16,6 +16,9 @@ const {
     getEnrollmentCSV,
     checkProperInstructor
 } = require('../models/courses');
+const {
+  getUserById
+} = require('../models/users');
 
  /*
  * Route to get all courses.
