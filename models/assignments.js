@@ -89,13 +89,30 @@ async function deleteAssignmentByID(id) {
 }
 exports.deleteAssignmentByID = deleteAssignmentByID;
 
-async function getSubmissionsByID(id) {
+async function getSubmissionsByID(id, page) {
   const db = getDBReference();
   const collection = db.collection('submissions')
-  const results = await collection.find({
-    assignmentId: id
-  }).toArray();
-  return results;
+  const count = await collection.countDocuments();
+
+  const pageSize = 10;
+  const lastPage = Math.ceil(count / pageSize);
+  page = page < 1 ? 1 : page;
+  page = page > lastPage ? lastPage : page;
+  const offset = (page - 1) * pageSize;
+
+  const results = await collection.find({assignmentId: id})
+    .sort({ _id: 1 })
+    .skip(offset)
+    .limit(pageSize)
+    .toArray();
+    
+  return {
+    submissions: results,
+    page: page,
+    totalPages: lastPage,
+    pageSize: pageSize,
+    count: count
+  };
 }
 exports.getSubmissionsByID = getSubmissionsByID;
 
