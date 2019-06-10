@@ -1,6 +1,7 @@
 const router = require('express').Router();
 
 const { validateAgainstSchema } = require('../lib/validation');
+const { generateAuthToken, requireAuthentication } = require('../lib/auth');
 
 const {
     CourseSchema,
@@ -12,7 +13,8 @@ const {
     getCourseEnrollment,
     getCourseAssignments,
     updateEnrollment,
-    getEnrollmentCSV
+    getEnrollmentCSV,
+    checkProperInstructor
 } = require('../models/courses');
 
  /*
@@ -50,24 +52,31 @@ router.get('/', async(req, res) => {
  /*
  * Route to create new course.
  */
-router.post('/', async(req, res) => {
-  if (validateAgainstSchema(req.body, CourseSchema)) {
-    try {
-      const id = await insertNewCourse(req.body);
-      res.status(201).send({
-        id: id
-      });
-    } catch (err) {
-      console.error(err);
-      res.status(500).send({
-        error: "Error inserting course into DB.  Please try again later."
+
+router.post('/', requireAuthentication, async(req, res) => {
+  if (req.role == "admin") {
+    if (validateAgainstSchema(req.body, CourseSchema)) {
+      try {
+        const id = await insertNewCourse(req.body);
+        res.status(201).send({
+          id: id
+        });
+      } catch (err) {
+        console.error(err);
+        res.status(500).send({
+          error: "Error inserting course into DB.  Please try again later."
+        });
+      }
+    } else {
+      res.status(400).send({
+        error: "The request body was either not present or did not contain a valid Course object."
       });
     }
-  } else {
-    res.status(400).send({
-      error: "The request body was either not present or did not contain a valid Course object."
+  } else{
+    res.status(403).send({
+      error: "The request was not made by an authenticated User satisfying the authorization criteria described above."
     });
-}
+  }
 });
 
 /*
@@ -95,43 +104,50 @@ router.get('/:id', async(req, res) => {
  * Route to update specific course
  */
 
-router.patch('/:id', async(req, res) => {
-  try {
-    const course = await getCourseById(req.params.id);
-    if (course) {
-      await updateCourseById(req.params.id, req.body);
-      res.status(200).send();
-    } else {
-      res.status(404).send({
-        error: "Specified Course id not found."
+ //auth for admin or instructor of class only
+router.patch('/:id', requireAuthentication, async(req, res) => {
+  if (req.role == "admin" || (req.role == "instructor" && await checkProperInstructor(req.params.id, req.user))) {
+    try {
+      const course = await getCourseById(req.params.id);
+      if (course) {
+        await updateCourseById(req.params.id, req.body);
+        res.status(200).send();
+      } else {
+        res.status(404).send({
+          error: "Specified Course id not found."
+        });
+      } 
+    } catch (err) {
+      console.error(err);
+      res.status(500).send({
+        error: "Unable to fetch Course.  Please try again later."
       });
-    } 
-  } catch (err) {
-    console.error(err);
-    res.status(500).send({
-      error: "Unable to fetch Course.  Please try again later."
-    });
+    }
   }
 });
 
 /*
  * Route to delete specific course.
  */
-router.delete('/:id', async(req, res) => {
-  try {
-    const course = await deleteCourseById(req.params.id);
-    if (course) {
-      res.status(204).send();
-    } else {
-      res.status(404).send({
-        error: "Specified Course id not found."
+
+  // Requires admin only auth
+router.delete('/:id', requireAuthentication, async(req, res) => {
+  if (req.role == "admin") {
+    try {
+      const course = await deleteCourseById(req.params.id);
+      if (course) {
+        res.status(204).send();
+      } else {
+        res.status(404).send({
+          error: "Specified Course id not found."
+        });
+      } 
+    } catch (err) {
+      console.error(err);
+      res.status(500).send({
+        error: "Unable to delete Course.  Please try again later."
       });
-    } 
-  } catch (err) {
-    console.error(err);
-    res.status(500).send({
-      error: "Unable to delete Course.  Please try again later."
-    });
+    }
   }
 });
 
@@ -139,6 +155,7 @@ router.delete('/:id', async(req, res) => {
 /*
  * Route to get list of students in specific course.
  */
+ //auth for admin or instructor of class only
 router.get('/:id/students', async(req, res) => {
   try {
     const course = await getCourseEnrollment(req.params.id);
@@ -161,6 +178,7 @@ router.get('/:id/students', async(req, res) => {
 /*
  * Route to update enrollment for specific course.
  */
+ //auth for admin or instructor of class only
 router.post('/:id/students', async(req, res) => {
   try {
     await updateEnrollment(req.params.id, req.body);
@@ -177,6 +195,7 @@ router.post('/:id/students', async(req, res) => {
 /*
  * Route to fetch CSV file containing list of students for specific course.
  */
+ //auth for admin or instructor of class only
 router.get('/:id/roster', async(req, res, next) => {
   try {
     const course = await getEnrollmentCSV(req.params.id);

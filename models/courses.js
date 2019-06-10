@@ -193,3 +193,20 @@ async function getEnrollmentCSV(id){
   return csv;
 }
 exports.getEnrollmentCSV = getEnrollmentCSV;
+
+async function checkProperInstructor(id, instructorId){
+	const db = getDBReference();
+	const collection = db.collection('courses');
+	try{
+		var course = await collection.find({_id: ObjectId(id)}).toArray();
+    course = course[0];
+		if(course.instructorId == instructorId){
+			return true;
+		} else{
+      return false;
+    }
+	} catch(err){
+		return false;
+	}
+}
+exports.checkProperInstructor = checkProperInstructor;
