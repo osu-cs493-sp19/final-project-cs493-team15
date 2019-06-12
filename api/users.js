@@ -14,6 +14,10 @@
    getUserByEmail,
    getUserById
 } = require('../models/users');
+const {
+  getCoursesEnrolledByInstructor,
+  getCoursesEnrolledByStudent
+} = require('../models/courses')
 
  /*
  * Route to create a new user.
@@ -78,12 +82,18 @@ router.get('/:id', requireAuthentication, async (req, res, next) => {
   if(req.params.id === req.user) {
     try {
       const user = await getUserById(req.params.id);
+      courses = [];
+      if (user.role == 'instructor') {
+        courses = await getCoursesEnrolledByInstructor(req.params.id);
+      } else if (user.role == 'student') {
+        courses = await getCoursesEnrolledByStudent(req.params.id);
+      }
       if(user) {
         res.status(200).send({
           id: user._id,
           email: user.email,
           role: user.role,
-          courses: [] // Needs to be changed later
+          courses: courses // Needs to be changed later
         });
       } else {
         next();

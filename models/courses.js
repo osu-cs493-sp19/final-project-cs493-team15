@@ -173,7 +173,7 @@ async function updateEnrollment(id, body) {
         console.log("add", element);
         await collection.update( { _id: ObjectId(id) }, { $push : { 'enrolled': ObjectId(element) } } );
       });
-    } 
+    }
     if (body.remove){
       body.remove.forEach(async function(element) {
         console.log("remove", element);
@@ -233,3 +233,54 @@ async function checkProperInstructor(id, instructorId){
 	}
 }
 exports.checkProperInstructor = checkProperInstructor;
+
+/*
+* Executes a DB query to get all course taught by a certain insturctor
+*/
+async function getCoursesEnrolledByInstructor(id){
+	const db = getDBReference();
+	const collection = db.collection('courses');
+	try{
+		var courses = await collection.find({instructorId: new ObjectId(id)}).toArray();
+    console.log(courses);
+    return courses;
+	} catch(err){
+    console.log(err);
+		return err;
+	}
+}
+exports.getCoursesEnrolledByInstructor = getCoursesEnrolledByInstructor;
+
+/*
+* Executes a DB query to get all course enrollements of a certain student
+*/
+async function getCoursesEnrolledByStudent(id){
+	const db = getDBReference();
+	const enrollmentCollection = db.collection('courseEnrollment');
+  const coursesCollection = db.collection('courses');
+  const coursesEnrolled = [];
+	try{
+		var courses = await coursesCollection.find({}).toArray();
+    courses.forEach(async function(course) {
+      try {
+        var enrolled =  await enrollmentCollection.find({ _id:new ObjectId(course._id) }).toArray();
+        console.log(enrolled.enrolled);
+        var students = enrolled.enrolled;
+        console.log(students)
+        if(enrolled.length > 0) {
+          if(students.indexOf(String(id)) > -1) {
+            coursesEnrolled.push(course._id);
+            console.log(coursesEnrolled);
+          }
+        }
+      } catch (err) {
+        console.log(err)
+      }
+    });
+    return coursesEnrolled;
+	} catch(err){
+    console.log(err);
+		return err;
+	}
+}
+exports.getCoursesEnrolledByStudent = getCoursesEnrolledByStudent;
